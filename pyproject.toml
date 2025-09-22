@@ -1,20 +1,75 @@
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
 [project]
 name = rxn-rdf-converter
+version = "0.1.0"
+description = "Package for extracting chemical reaction serialized (Google Protocol Buffers mechanism) in Open Reaction Database (ORD) schema to Resource Descriptive Framework (RDF) triples in JSON-LD and/or Turtle format."
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+  { name = "Quynh D. Tran", email = "qdt@case.edu" },
+  { name = "Holly Schreiber", email = "hls92@case.edu" },
+  { name = "Owen Schessler", email = "ops10@case.edu" },
+  { name = "Laura S. Bruckman", email = "lsh41@case.edu" },
+  { name = "Roger H. French", email = "rxf131@case.edu" }
+]
+dynamic = ["version"]
+
 [tool.setuptools.packages.find]
 where=["src"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 
-[project]
-dynamic = ["version"]
-
 [project.urls]
 Homepage = "https://github.com/quynhdtran17/rxn-rdf-converter"
-Documentation = "https://ord-rxn-converter.readthedocs.io/"
 Repository = "https://github.com/quynhdtran17/rxn-rdf-converter"
 "Bug Tracker" = "https://github.com/quynhdtran17/rxn-rdf-converter/issues"
 Changelog = "https://github.com/quynhdtran17/rxn-rdf-converter/blob/main/CHANGELOG.md"
+
+ keywords = [
+  "chemistry", "ord", "open-reaction-database",
+  "machine-learning", "cheminformatics", "reaction-data",
+    ]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+
+dependencies = [
+  "ord_schema",
+  "protobuf",
+  "rdflib",
+  "owlready2",
+  "logging",
+  "csv",
+  "re"
+  "rdkit",
+]
+
+# Convenience option to install everything
+all = [
+  "rxn_rdf_converter[docs,dev]"
+]
+
+[project.optional-dependencies]
+docs = [
+  "sphinx >= 4.0", 
+  "sphinx-rtd-theme",
+  "sphinx-autodoc-typehints",
+  "myst-parser",
+]
+
+dev = [
+  "pytest",
+  "black",
+  "flake8",
+  "mypy",
+]
+
+[project.scripts]
+rxn_rdf_converter = "rxn_rdf_converter.cli:main"
