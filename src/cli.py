@@ -31,14 +31,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # =================================================================
-#               INITIATE FILE PATH
+#               MAIN FUNCTION
 # =================================================================
-dataset_path = '/mnt/vstor/CSE_MSE_RXF131/staging/mds3/KG-ChemRxn/OpenReactionDB/ord-data/data' # path of dataset 
-savepath = '/mnt/vstor/CSE_MSE_RXF131/staging/mds3/KG-ChemRxn/Extracted_ORD_Data'
-onto_file_path = '/mnt/vstor/CSE_MSE_RXF131/staging/mds3/KG-ChemRxn/chemOntologies/mdsChemRxn(v.0.3.0.7).owl'
-error_log_directory = '/mnt/vstor/CSE_MSE_RXF131/staging/mds3/KG-ChemRxn/error_logs'
-
-def setup_file_path(dataset_path, savepath, onto_file_path, error_log_directory):
+def setup_file_path(dataset_path):
     """ Set up the file paths """
     
     file_list = []
@@ -48,32 +43,24 @@ def setup_file_path(dataset_path, savepath, onto_file_path, error_log_directory)
                 file_path = os.path.join(root, name)
                 file_list.append(file_path)
     
-    return dataset_path, savepath, onto_file_path, error_log_directory, file_list
+    return file_list
 
-# =================================================================
-#               MAIN FUNCTION
-# =================================================================
-
-def main(): 
+def main(dataset_path, save_path, onto_file_path, error_log_directory): 
     """ Main Executive Function """
     try: 
         logging.info("Starting Data Processing....")
 
         # set up path: 
-        dataset_path, savepath, onto_file_path, error_log_directory, file_list = setup_file_path(dataset_path, savepath, onto_file_path, error_log_directory)
-        logger.info(f"Found {len(file_list)} data files")
-
+        file_list = setup_file_path(dataset_path)
         dataset_reaction_list = []
-
         dataset_1 = rxn_rdf_converter.DatasetProcessor(
             dataset_pb=dataset_pb2,
             dataset_file_path=file_list[2],
             owl_onto_file_path=onto_file_path,
-            output_directory=savepath,
+            output_directory=save_path,
             error_log_directory=error_log_directory,
             fmt='json-ld'
         )
-
         _, reaction_error, dataset_reaction_list = dataset_1.extract_reaction(dataset_reaction_list)
             # save the results
         with open('dataset_reactions.csv', 'w', newline='') as f: 
@@ -87,7 +74,12 @@ def main():
         logger.error(f"Error in main execution: {e}", exc_info=True)
         
 if __name__ == '__main__': 
-    main()
+
+    dataset_path = '/mnt/vstor/CSE_MSE_RXF131/staging/mds3/KG-ChemRxn/OpenReactionDB/ord-data/data' # path of dataset 
+    save_path = '/mnt/vstor/CSE_MSE_RXF131/staging/mds3/KG-ChemRxn/Extracted_ORD_Data'
+    onto_file_path = '/mnt/vstor/CSE_MSE_RXF131/staging/mds3/KG-ChemRxn/chemOntologies/mdsChemRxn(v.0.3.0.7).owl'
+    error_log_directory = '/mnt/vstor/CSE_MSE_RXF131/staging/mds3/KG-ChemRxn/error_logs'
+    main(dataset_path, save_path, onto_file_path, error_log_directory)
 
 # Extract one reaction into one JSON-LD 
 #dataset = load_message(file_list[4], dataset_pb2.Dataset,)

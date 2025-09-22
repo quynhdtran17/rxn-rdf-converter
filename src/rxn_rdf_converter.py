@@ -1025,7 +1025,7 @@ class ReactionKG:
                 if 'electrochemistry.cathode_material' in item: 
                     self.instance_dict['has text value'].append([electrochemistry_condition.iri, item['electrochemistry.cathode_material']])
                 if 'electrochemistry.electrode_separation.value' in item and 'electrochemistry.electrode_separation.units' in item: 
-                    electrode_separation = cco.ont00000738(f"ElectrodeSeparation#{self.reaction_id}")
+                    electrode_separation = self.cco.ont00000738(f"ElectrodeSeparation#{self.reaction_id}")
                     self.instance_dict['type'].append([electrode_separation.iri, electrode_separation.is_instance_of[0].iri])
                     #self.instance_dict['inheres in'].append([tube_diameter.iri, flow_tube.iri])
                     #self.instance_dict['has decimal value'].append([tube_diameter.iri, item['flow.tubing.diameter.value']])
@@ -1058,11 +1058,11 @@ class ReactionKG:
                         'SILICON': 'SiliconTube',
                         'PDMS': 'PolydimethylsiloxaneTube',
                     }
-                    flow_tube = cco.ont00000581(f"{tube_mapping[item['flow.tubing.type']]}#{self.reaction_id}")
+                    flow_tube = self.cco.ont00000581(f"{tube_mapping[item['flow.tubing.type']]}#{self.reaction_id}")
                     self.instance_dict['type'].append([flow_tube.iri, flow_tube.is_instance_of[0].iri])
                     self.instance_dict['details'].append([flow_tube.iri, item['flow.tubing.details']]) if 'flow.tubing.details' in item else None
                     if 'flow.tubing.diameter' in item and 'flow.tubing.diameter.value' in item and 'flow.tubing.diamter.units' in item:
-                        tube_diameter = cco.ont00000738(f"TubeDiameter#{self.reaction_id}")
+                        tube_diameter = self.cco.ont00000738(f"TubeDiameter#{self.reaction_id}")
                         self.instance_dict['type'].append([tube_diameter.iri, tube_diameter.is_instance_of[0].iri])
                         self.instance_dict['inheres in'].append([tube_diameter.iri, flow_tube.iri])
                         self.instance_dict['has decimal value'].append([tube_diameter.iri, item['flow.tubing.diameter.value']])
