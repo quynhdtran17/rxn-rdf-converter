@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+[project]
+name = rxn-rdf-converter
+[tool.setuptools.packages.find]
+where=["src"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[project]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/quynhdtran17/rxn-rdf-converter"
+Documentation = "https://ord-rxn-converter.readthedocs.io/"
+Repository = "https://github.com/quynhdtran17/rxn-rdf-converter"
+"Bug Tracker" = "https://github.com/quynhdtran17/rxn-rdf-converter/issues"
+Changelog = "https://github.com/quynhdtran17/rxn-rdf-converter/blob/main/CHANGELOG.md"

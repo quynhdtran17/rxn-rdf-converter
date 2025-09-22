@@ -105,9 +105,36 @@ class DatasetProcessor:
         return self, reaction_error, dataset_reaction_list
 
 class ReactionKG: 
-    """ A class to process reaction data based on the ord schema (in Google Protocol Buffers format) into Python lists of dictionaries and convert into RDF triples based on MDS-Onto to generate a RDF graph """
+    """A class to process reaction data based on the ord schema
+    (in Google Protocol Buffers format) into Python lists of dictionaries
+    and convert into RDF triples based on MDS-Onto to generate a RDF graph
     
+    Each instance of this class (without calling any additional functions on
+    is) just contains a .reaction_pb attribute, which stores the reaction
+    information in Protocol Buffer format, and several other null variables and
+    empty lists that will hold the Protocol Buffer file's data.
+
+    Calling the functions generate_reaction(self),
+    generate_instances(self, onto_file_path), and
+    generate_data_graph(self, dataset_id, save_file_path) on the instance, in
+    that order, will produce the RDF graph file of the Protocol Buffer file
+    represented by the instace. It will be saved to the path save_file_path
+    (the parameter in the function generate_data_graph)
+    
+    :class:????????
+
+    :param reaction_pb: The Protocol Buffer file representing this instance
+    :type reaction_pb: ord_schema.proto.reaction_pb2.Reaction
+    :param fmt: The format of the file containing the RDF graph data, defaults
+    to `"turtle"`
+    :type fmt: str, optional
+
+
+    """
+
     def __init__ (self, reaction_pb, fmt="turtle"): 
+        """Constructor method
+        """
         self.reaction_pb = reaction_pb
         self.fmt = fmt
         self.reaction_id = re.split('-', reaction_pb.reaction_id)[1] 
@@ -136,8 +163,14 @@ class ReactionKG:
             reaction setup dict
             reaction conditions dict
             reaction outcomes dict
+            reaction notes
+            reaction provenance
 
+        :return: the ReactionKG instance after the above lists have been populated with
+        data from the instance's Protocol Buffer file
+        :rtype: rxn_rdf_converter.ReactionKG
         """
+
         # reaction identifiers 
         for identifier in self.reaction_pb.identifiers:
             identifier_dict = {'reactionID':self.reaction_id}
@@ -261,6 +294,14 @@ class ReactionKG:
         return self
         
     def generate_compound_identifiers (self, identifiers): 
+        """
+        :param identifiers:
+        :type identifiers:
+        :return: A tuple containing a list of the reaction's identifiers, as
+        well as the INCHI_KEY corresponding to the reaction, if one exists
+        :rtype: tuple(list, str)
+        """
+
         identifier_list = []
         desired_type = set()
         
@@ -297,11 +338,17 @@ class ReactionKG:
 
         return identifier_list, inchi_key
     
-    def generate_instances (self, mds_file_path): 
-        """Main method orchestrates all other methods - coordinates all instance generation"""
+    def generate_instances (self, onto_file_path): 
+        """Main method orchestrates all other methods - coordinates all instance generation
         
+        :param onto_file_path:
+        :type onto_file_path: str
+        :return: the ReactionKG instance after the instance generation has been completed
+        for the instance's Protocol Buffer file and the list of dictionaries generated from it
+        :rtype: rxn_rdf_converter.ReactionKG
+        """
         try: 
-            self._initialize_instance_dict(mds_file_path)
+            self._initialize_instance_dict(onto_file_path)
         except Exception as e: 
             logger.error(f"Failed to initialize dictionaries of instances for reaction {self.reaction_id}: {e}")
             pass
@@ -356,7 +403,7 @@ class ReactionKG:
 
         return self
 
-    def _initialize_instance_dict(self, mds_file_path): 
+    def _initialize_instance_dict(self, onto_file_path): 
         """ Initialization of: 
             1. the variables for OWL 2 ontology and the get the namespaces
             2. the instance dictionary with all property labels and 
@@ -396,7 +443,7 @@ class ReactionKG:
             onto attribute with classes, properties, and instances that can be called by other methods
         """
 
-        self.onto = get_ontology(mds_file_path).load()
+        self.onto = get_ontology(onto_file_path).load()
 
         self.onto.get_namespace('http://purl.allotrope.org/ontologies/equipment#')
         self.onto.get_namespace('http://purl.allotrope.org/ontologies/result#')
@@ -501,6 +548,16 @@ class ReactionKG:
             list: sorted list of integers for numeric indices or list of unique strings for text indices
         """
         
+        """Extract indices from dictionary keys based on regex pattern
+
+        :param item_dict: Dictionary containing keys to search
+        :type item_dict: dict
+        :param pattern: Regex pattern to match keys and extract indices
+        :type pattern: str
+        :return: sorted list of integers for numeric indices or list of unique strings for text indices
+        :rtype: list
+        """
+        
         numeric_indices = []
         string_indices = []
         compiled_pattern = re.compile(pattern)
@@ -558,6 +615,19 @@ class ReactionKG:
 
         Returns: 
             lists in instance_dict with component properties 
+        """
+
+        """ Private method to process the components in reaction inputs and reaction workups
+        as well as products
+
+        :param component_list:
+        :type component_list:
+        :param process_node:
+        :type process_node:
+        :param context:
+        :type context:
+        :return:
+        :rtype: tuple(rxn_rdf_converter.ReactionKG, dict)
         """
         product_dict = {}
 
@@ -654,7 +724,16 @@ class ReactionKG:
         return self, product_dict
 
     def _extract_component_amount (self, component_list, reaction_component, i=None, context='input'): 
-        """ Process compound amounts in reaction inputs and reaction workups """
+        """ Process compound amounts in reaction inputs and reaction workups
+
+        :param component_list:
+        :type component_list:
+        :param reaction_component:
+        :param i:
+        :type i:
+        :param context:
+        :type context:
+        """
 
         if context == 'input': 
             prefix = f"components[{i}]."
@@ -680,7 +759,18 @@ class ReactionKG:
                 self.instance_dict['uses measurement unit'].append([amount_added.iri, self.unit_mapping[component_list[f"{prefix}amount.{amount_type}.units"]].iri])
 
     def _extract_compound_identifiers(self, component_list, i, context, prefix, reaction_component):
-        """ Extract compound identifiers for components in a reaction either as reaction inputs or reaction workups """
+        """ Extract compound identifiers for components in a reaction either as reaction inputs or reaction workups
+         :param component_list:
+        :type component_list:
+        :param i:
+        :type i:
+        :param context:
+        :type context:
+        :param prefix:
+        :type prefix:
+        :param reaction_component:
+        :type reaction_component:
+        """
         
         pattern = rf'^{re.escape(prefix)}\[{i}\]\.identifiers\[(\d+)\]\.(.+)$'
         ind_list = self._extract_index_set(component_list, pattern)
@@ -786,7 +876,15 @@ class ReactionKG:
                     self.instance_dict['details'].append([addition_device.iri, item['addition_device.details']])
     
     def _process_temperature(self, component_list, reaction_component=None, context='condition'):
-        """ Process and extract temperature information about a reaction input, the reaction environment, or a reaction workup"""
+        """ Process and extract temperature information about a reaction input, the reaction environment, or a reaction workup
+
+        :param component_list:
+        :type component_list:
+        :param reaction_component:
+        :type reaction_component:
+        :param context:
+        :type context:
+        """
 
         if context == 'condition' or context == 'workup': 
             prefix = 'temperature.setpoint'
@@ -1051,7 +1149,16 @@ class ReactionKG:
                 
 
     def _extract_product_measurement(self, outcome_list, product_dict):
-        """ Process measurements of the products of the chemical reaction """
+        """ Process measurements of the products of the chemical reaction 
+        
+        :param outcome_list:
+        :type outcome_list:
+        :param product_dict:
+        :type product_dict:
+        :return:
+        :rtype: tuple(rxn_rdf_converter.ReactionKG, dict)
+        """
+
         pattern = rf'^products\[(\d+)\]'
         index_list = self._extract_index_set(outcome_list, pattern)
         measurement_dict = {}
@@ -1180,7 +1287,14 @@ class ReactionKG:
             self.instance_dict['precedes'].append([reaction_setup.iri, self.chemical_reaction.iri])
 
     def generate_data_graph(self, dataset_id, save_file_path): 
-        
+        """
+        :param dataset_id:
+        :type dataset_id:
+        :param save_file_path:
+        :type save_file_path:
+        :return:
+        :rtype: rxn_rdf_converter.ReactionKG
+        """
         # Initialize graph, binding to the corresponding namespaces
         self.graph = Graph()
         self.graph.bind('afe', AFE)
