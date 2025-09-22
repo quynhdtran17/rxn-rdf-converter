@@ -42,7 +42,7 @@ def setup_file_path(dataset_path, savepath, onto_file_path, error_log_directory)
     """ Set up the file paths """
     
     file_list = []
-    for root, dirs, files in os.walk(dataset):
+    for root, dirs, files in os.walk(dataset_path):
         for name in files: 
             if name.startswith('ord_dataset'):
                 file_path = os.path.join(root, name)
@@ -90,5 +90,5 @@ if __name__ == '__main__':
     main()
 
 # Extract one reaction into one JSON-LD 
-dataset = load_message(file_list[4], dataset_pb2.Dataset,)
-reaction_1 = rxn_rdf_converter.ReactionKG(dataset.reactions[5], fmt="json-ld").generate_reaction().generate_instances(onto_file_path).generate_data_graph(dataset.dataset_id, savepath)
+#dataset = load_message(file_list[4], dataset_pb2.Dataset,)
+#reaction_1 = rxn_rdf_converter.ReactionKG(dataset.reactions[5], fmt="json-ld").generate_reaction().generate_instances(onto_file_path).generate_data_graph(dataset.dataset_id, savepath)
