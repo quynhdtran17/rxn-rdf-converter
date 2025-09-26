@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = rxn_rdf_converter
+name = "rxn_rdf_converter"
 version = "0.1.0"
 description = "Package for extracting chemical reaction serialized (Google Protocol Buffers mechanism) in Open Reaction Database (ORD) schema to Resource Descriptive Framework (RDF) triples in JSON-LD and/or Turtle format."
 readme = "README.md"
