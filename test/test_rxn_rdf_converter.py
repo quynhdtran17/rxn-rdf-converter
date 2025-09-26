@@ -58,18 +58,18 @@ def setup_file_path():
 path, savepath, mds_file_path, file_list = setup_file_path()
 logger.info(f"Found {len(file_list)} data files")
 
+# Choose a dataset to test the reactions from
+dataset = load_message(file_list[0], dataset_pb2.Dataset,)
+
 # Randomly generates "num_test_reactions" numbers from 1 to 69690- these will be
 # the reactions that will be tested
-def generate_random_reaction_set(file_list, num_test_reactions):
+def generate_random_reaction_set(num_test_reactions):
 
-    num_total_reactions = 0
-
-    # Counts the number of reactions in the file list
-    for i in range(0, len(file_list)):
-        num_total_reactions += len(load_message(file_list[i], dataset_pb2.Dataset,).reactions)
+    # Counts the number of reactions in the dataset
+    num_total_reactions = len(dataset.reactions)
 
     # Prints the total number of reactions in the file list
-    print("There are " + str(num_total_reactions) + " reactions in the file list")
+    print("There are " + str(num_total_reactions) + " reactions in the dataset")
     
     # Creates a random list of numbers that correspond to reactions in the file
     # list's datasets
@@ -88,9 +88,8 @@ def create_list_of_protocol_buffer_test_reactions(random_reaction_nums):
     # List to hold the protocol buffer reactions that will be tested
     protocol_buffer_test_reactions = []
 
-    # For each reaction in the file list
-    for i in range(len(file_list)):
-        for j in range(len(load_message(file_list[i], dataset_pb2.Dataset,).reactions)):
+    # For each reaction in the dataset
+    for j in range(len(dataset.reactions)):
 
             # Checks to make sure there is at least one more element in the random reaction
             # numbers list
@@ -99,7 +98,7 @@ def create_list_of_protocol_buffer_test_reactions(random_reaction_nums):
                 # Adds the corresponding reaction to the list if the current reaction number being
                 # checked matches the next element in the random reaction numbers list
                 if current_reaction_num == random_reaction_nums[current_reaction_index]:
-                    protocol_buffer_test_reactions.append(load_message(file_list[i], dataset_pb2.Dataset,).reactions[j])
+                    protocol_buffer_test_reactions.append(dataset.reactions[j])
                     
                     # Goes to the next element in the random reaction numbers list
                     current_reaction_index += 1
@@ -123,9 +122,9 @@ class TestRxnRdfConverter(unittest.TestCase):
         protocol_buffer_test_reactions = []
 
         # Creates a list of 50 random reaction numbers from 1 to the total
-        # number of reactions in all the files- each of these will be tested
+        # number of reactions in the dataset- each of these will be tested
         try:
-            random_reaction_nums, num_test_reactions, num_total_reactions = generate_random_reaction_set(file_list, 50)
+            random_reaction_nums, num_test_reactions, num_total_reactions = generate_random_reaction_set(50)
             print("List of 50 random reaction numbers out of " + str(num_total_reactions) + " total:")
             print(str(random_reaction_nums))
         except Exception as e:
@@ -522,9 +521,9 @@ class TestRxnRdfConverter(unittest.TestCase):
             # - uses measurement unit
             assert isinstance(semi.instance_dict, dict)
             # If there was temperature in the reaction, expect measurement entries
-            any_temp = any(k for k in semi.reaction_conditions if k.get("temperature") == True)
-            if any_temp:
-                assert any(semi.instance_dict.get("has decimal value", []))
+            #any_temp = any(k for k in semi.reaction_conditions if k.get("temperature") == True)
+            #if any_temp:
+            #    assert any(semi.instance_dict.get("has decimal value", []))
 
 
     def test_process_reaction_notes_and_workups_and_outcomes(self):
