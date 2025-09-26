@@ -2,6 +2,7 @@
 # =================================================================
 #               IMPORT REQUIREMENTS
 # =================================================================
+import ord_schema
 from ord_schema.message_helpers import load_message, write_message, message_to_row
 from ord_schema.proto import dataset_pb2, reaction_pb2
 import os
@@ -39,7 +40,8 @@ logger = logging.getLogger(__name__)
 # =================================================================
         
 class DatasetProcessor: 
-    """A class to process an Open Reaction Database (ORD) dataset
+    """
+    A class to process an Open Reaction Database (ORD) dataset
 
     :param dataset_pb:
     :type dataset_pb:
@@ -134,9 +136,10 @@ class DatasetProcessor:
         return self, reaction_error, dataset_reaction_list
 
 class ReactionKG: 
-    """A class to process reaction data based on the ord schema
-    (in Google Protocol Buffers format) into Python lists of dictionaries
-    and convert into RDF triples based on MDS-Onto to generate a RDF graph
+    """A class that represents a chemical reaction knowledge graph; it processes
+    reaction data based on the ord schema (in Google Protocol Buffers format) into
+    Python lists of dictionaries and converts the dictionaries into RDF triples
+    based on MDS-Onto to generate a RDF graph
     
     Each instance of this class (without calling any additional functions on
     is) just contains a .reaction_pb attribute, which stores the reaction
@@ -150,7 +153,21 @@ class ReactionKG:
     represented by the instace. It will be saved to the path save_file_path
     (the parameter in the function generate_data_graph)
 
-    :class:?
+    Attributes:
+        reaction_pb (:class:?): The protocol buffer object
+            representing the reaction.
+        fmt (str): Optional string that represents the format of the RDF graph,
+            either "json-ld" or "turtle"; defaults to "turtle".
+        reaction_id (str): Unique identifier for the reaction. Generated
+            internally if not provided.
+        reaction_identifiers (list): List of reaction identifiers extracted from
+            the reaction.
+        reaction_inputs (list): List of input components extracted from the
+            reaction.
+        reaction_conditions (list): List of reaction conditions, such as
+            temperature, pressure, stirring rate.
+        graph (rdflib.Graph): Optional RDF graph generated from this reaction.
+
 
     :param reaction_pb: The Protocol Buffer file representing this instance
     :type reaction_pb: ord_schema.proto.reaction_pb2.Reaction
@@ -162,7 +179,12 @@ class ReactionKG:
     """
 
     def __init__ (self, reaction_pb, fmt="turtle"): 
-        """Constructor method
+        """
+        Initializes a ReactionKG instance
+
+        Args:
+            reaction_pb(): 
+            fmt(str): The format of the file containing the RDF graph data, defaults to "turtle"
         """
         self.reaction_pb = reaction_pb
         self.fmt = fmt
