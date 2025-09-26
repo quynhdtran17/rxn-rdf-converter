@@ -47,8 +47,8 @@ dependencies = [
   "owlready2",
   "logging",
   "csv",
-  "re"
-  "rdkit",
+  "re",
+  "rdkit"
 ]
 
 # Convenience option to install everything
