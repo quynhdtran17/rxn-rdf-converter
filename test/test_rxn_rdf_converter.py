@@ -13,7 +13,7 @@ import rdflib
 from rdflib import Graph, RDF, RDFS, OWL, Namespace, Literal, URIRef
 from rdflib.namespace import RDFS, XSD, URIRef, OWL, SKOS, PROV
 from datetime import datetime
-import rxn_rdf_converter
+from src import rxn_rdf_converter
 import logging
 import random
 import unittest
@@ -109,36 +109,38 @@ def create_list_of_protocol_buffer_test_reactions(random_reaction_nums):
     # Returns the completed list of the protocol buffer reactions that will be tested
     return protocol_buffer_test_reactions
 
-"""
-# Expect user has set these in the test environment; if not, tests will fail fast.
-try:
-    protocol_buffer_test_reactions  # noqa: F821
-    mds_file_path  # noqa: F821
-except NameError:
-    # If the user hasn't defined these names in the global test environment,
-    # attempt to import from a helper module; otherwise raise a clear error.
-    try:
-        from test_helpers import protocol_buffer_test_reactions, mds_file_path  # optional
-    except Exception:
-        raise RuntimeError(
-            "protocol_buffer_test_reactions and mds_file_path must be available in the test environment. "
-            "Either define them in conftest.py or provide a module `test_helpers` that exposes them."
-        )
-"""
 
 # Class to test the file rxn_rdf_converter.py
 class TestRxnRdfConverter(unittest.TestCase):
 
-    protocol_buffer_test_reactions = protocol_buffer_test_reactions
+    @classmethod
+    def setUpClass(self):
 
-    def setUp(self):
-        pass
+        # Initializes a list to hold 50 protocol buffer reactions- a number
+        # of reactions much greater than this will likely cause the kernel
+        # to creash
+        protocol_buffer_test_reactions = []
+
+        # Creates a list of 50 random reaction numbers from 1 to the total
+        # number of reactions in all the files- each of these will be tested
+        try:
+            random_reaction_nums, num_test_reactions, num_total_reactions = generate_random_reaction_set(file_list, 50)
+            print("List of 50 random reaction numbers out of " + str(num_total_reactions) + " total:")
+            print(str(random_reaction_nums))
+        except ValueError as v:
+            print("Error in generating a list of random reaction numbers")
+            print(v)
+
+        # Creates a list of the 50 protocol buffer reactions to test from
+        # the random reaction numbers
+        protocol_buffer_test_reactions = create_list_of_protocol_buffer_test_reactions(random_reaction_nums)
+        self.protocol_buffer_test_reactions = protocol_buffer_test_reactions
 
     def test_generate_reaction_basic_properties(self):
         """
         Test generate_reaction() runs and populates the basic lists and attributes.
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
             # basic attributes
@@ -169,7 +171,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         For each reaction, exercise generate_compound_identifiers() on real components where available.
         Check that when SMILES or INCHI present, an INCHI_KEY is produced.
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
             # iterate over all inputs -> components -> identifiers
@@ -211,7 +213,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         If the ontology path doesn't exist or loading fails, skip the test.
         """
         with tempfile.TemporaryDirectory() as tmp_dir:
-            for pb_rxn in protocol_buffer_test_reactions:
+            for pb_rxn in self.protocol_buffer_test_reactions:
                 semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
                 # If the file doesn't exist, skip
@@ -253,7 +255,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         Test _extract_index_set with numeric, string, mixed keys.
         This tests the helper directly (no ontology required).
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld")
             # numeric
             item_dict = {"components[0]": 1, "components[2]": 1, "components[1]": 1, "other": 9}
@@ -280,7 +282,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         Run _initialize_instance_dict and then _process_reaction_identifiers using real identifiers.
         Only assert behavior if identifiers exist.
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
             if not semi.reaction_identifiers:
@@ -309,7 +311,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         Run _initialize_instance_dict (ontology required) and _process_reaction_inputs which calls _extract_components.
         Validate that components are added to instance_dict and that component amounts create measurement triples.
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
             if not semi.reaction_inputs:
@@ -341,7 +343,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         Construct a mock component_list representing a component with a mass amount and verify that
         _extract_component_amount creates 'has decimal value' and 'uses measurement unit' entries with correct values.
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
             if not os.path.exists(mds_file_path):
@@ -385,7 +387,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         Test _extract_compound_identifiers by building a component_list that contains identifiers
         and ensuring the instance_dict is updated with has text value, details and is mapped when present.
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
             if not os.path.exists(mds_file_path):
@@ -431,7 +433,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         Ensure the file is created and that the graph contains at least one triple.
         """
         with tempfile.TemporaryDirectory() as tmp_path:
-            for pb_rxn in protocol_buffer_test_reactions:
+            for pb_rxn in self.protocol_buffer_test_reactions:
                 semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
                 if not os.path.exists(mds_file_path):
@@ -460,7 +462,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         """
         Validate _process_temperature in both condition and input contexts using small synthetic dicts derived from reaction.
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
             if not os.path.exists(mds_file_path):
@@ -498,7 +500,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         Run _process_reaction_conditions using the reaction's real reaction_conditions (if present).
         Validate that units & numeric values appear for keys like pressure, illumination, electrochemistry, flow, stirring.
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
             if not semi.reaction_conditions:
@@ -530,7 +532,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         Run the methods that process notes, workups, and outcomes and ensure no exceptions occur and
         that instance_dict is updated when relevant keys are present.
         """
-        for pb_rxn in protocol_buffer_test_reactions:
+        for pb_rxn in self.protocol_buffer_test_reactions:
             semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
             # Need ontology to process workups/outcomes properly
@@ -573,7 +575,7 @@ class TestRxnRdfConverter(unittest.TestCase):
         Process setup and ensure generate_data_graph saves an output file in requested format.
         """
         with tempfile.TemporaryDirectory() as tmp_path:
-            for pb_rxn in protocol_buffer_test_reactions:
+            for pb_rxn in self.protocol_buffer_test_reactions:
                 semi = rxn_rdf_converter.ReactionKG(pb_rxn, fmt="json-ld").generate_reaction()
 
                 if not os.path.exists(mds_file_path):
@@ -597,25 +599,6 @@ class TestRxnRdfConverter(unittest.TestCase):
 # Tests the conversion of 50 random protocol buffer reactions
 def test50RandomReactions():
 
-    # Initializes a list to hold 50 protocol buffer reactions- a number
-    # of reactions much greater than this will likely cause the kernel
-    # to creash
-    protocol_buffer_test_reactions = []
-
-    # Creates a list of 50 random reaction numbers from 1 to the total
-    # number of reactions in all the files- each of these will be tested
-    try:
-        random_reaction_nums, num_test_reactions, num_total_reactions = generate_random_reaction_set(file_list, 1)
-        print("List of 50 random reaction numbers out of " + str(random_reaction_nums) + " total:")
-        print(str(num_test_reactions))
-    except ValueError as v:
-        print("Error in generating a list of random reaction numbers")
-        print(v)
-
-    # Creates a list of the 50 protocol buffer reactions to test from
-    # the random reaction numbers
-    protocol_buffer_test_reactions = create_list_of_protocol_buffer_test_reactions(random_reaction_nums)
-
     # Runs the pyunittests
     if __name__ == '__main__':
         unittest.main(argv=['first-arg-is-ignored'], exit=False)
@@ -625,3 +608,5 @@ try:
     test50RandomReactions()
 except Exception as e:
     print(e)
+
+# %%
