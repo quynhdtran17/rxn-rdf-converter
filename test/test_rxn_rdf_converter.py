@@ -128,9 +128,8 @@ class TestRxnRdfConverter(unittest.TestCase):
             random_reaction_nums, num_test_reactions, num_total_reactions = generate_random_reaction_set(file_list, 50)
             print("List of 50 random reaction numbers out of " + str(num_total_reactions) + " total:")
             print(str(random_reaction_nums))
-        except ValueError as v:
-            print("Error in generating a list of random reaction numbers")
-            print(v)
+        except Exception as e:
+            print(e)
 
         # Creates a list of the 50 protocol buffer reactions to test from
         # the random reaction numbers
