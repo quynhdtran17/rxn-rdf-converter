@@ -59,7 +59,7 @@ path, savepath, mds_file_path, file_list = setup_file_path()
 logger.info(f"Found {len(file_list)} data files")
 
 # Choose a dataset to test the reactions from
-dataset = load_message(file_list[0], dataset_pb2.Dataset,)
+dataset = load_message("test/ord_dataset-00005539a1e04c809a9a78647bea649c.pb.gz", dataset_pb2.Dataset,)
 
 # Randomly generates "num_test_reactions" numbers from 1 to 69690- these will be
 # the reactions that will be tested
