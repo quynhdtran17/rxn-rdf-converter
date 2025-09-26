@@ -2,6 +2,7 @@
 # =================================================================
 #               IMPORT REQUIREMENTS
 # =================================================================
+import ord_schema
 from ord_schema.message_helpers import load_message, write_message, message_to_row
 from ord_schema.proto import dataset_pb2, reaction_pb2
 import os
@@ -159,6 +160,8 @@ class ReactionKG:
             either "json-ld" or "turtle"; defaults to "turtle".
         reaction_id (str): Unique identifier for the reaction. Generated
             internally if not provided.
+        reaction_identifiers (list): List of reaction identifiers extracted from
+            the reaction.
         reaction_inputs (list): List of input components extracted from the
             reaction.
         reaction_conditions (list): List of reaction conditions, such as
