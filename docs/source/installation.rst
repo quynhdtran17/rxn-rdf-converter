@@ -5,11 +5,11 @@ Requirements
 ------------
 
 * Python >= 3.7
-* protobuf
-* rdkit
-* ord_schema
-* owlready2
-* rdflib
+* protobuf>=3.20
+* rdkit>=2022.9.5
+* ord_schema>=0.3.99
+* owlready2 >= 0.45
+* rdflib>=6.2.0
 
 Install from PyPI
 -----------------
