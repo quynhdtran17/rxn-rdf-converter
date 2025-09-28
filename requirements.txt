@@ -5,3 +5,8 @@ protobuf>=3.20
 rdflib>=6.2.0
 owlready2>=0.45
 rdkit>=2022.9.5
+
+Sphinx==8.2.3
+sphinx-rtd-theme
+sphinx-autodoc
+# Any other Sphinx extensions like sphinx-autodoc, etc.

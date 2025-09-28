@@ -127,7 +127,7 @@ html_short_title = project
 html_context = {
     'display_github': True,
     'github_user': 'cwru-sdle',
-    'github_repo': 'ord_rxn_converter',
+    'github_repo': 'rxn_rdf_converter',
     'github_version': 'main',
     'conf_py_path': '/docs/source/',
 }
