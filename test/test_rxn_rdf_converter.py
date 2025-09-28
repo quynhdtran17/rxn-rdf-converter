@@ -68,7 +68,7 @@ def generate_random_reaction_set(file_list, num_test_reactions):
         num_total_reactions += len(load_message(file_list[i], dataset_pb2.Dataset,).reactions)
 
     # Prints the total number of reactions in the file list
-    print("There are " + str(num_total_reactions) + " reactions in the file list")
+    print(f"There are {str(num_total_reactions)} reactions in the file list")
     
     # Creates a random list of numbers that correspond to reactions in the file
     # list's datasets
