@@ -44,6 +44,7 @@ Homepage = "https://github.com/quynhdtran17/rxn-rdf-converter"
 Repository = "https://github.com/quynhdtran17/rxn-rdf-converter"
 "Bug Tracker" = "https://github.com/quynhdtran17/rxn-rdf-converter/issues"
 Changelog = "https://github.com/quynhdtran17/rxn-rdf-converter/blob/main/CHANGELOG.md"
+Documentation = "https://rxn-rdf-converter.readthedocs.io/en/latest/"
 
 [project.optional-dependencies]
 docs = [

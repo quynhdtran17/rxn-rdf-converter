@@ -10,10 +10,9 @@ Welcome to Reaction RDF Converter's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   introduction
+   intro
    installation
-   quick start
-   modules 
+   quickstart
    api
    
 
