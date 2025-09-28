@@ -82,7 +82,7 @@ def process_all_datasets(file_list, save_path, onto_file_path, error_log_directo
     """Processes every dataset file path in the provided list."""
     dataset_reaction_list = []
     
-    for dataset_file_path in file_list:
+    for dataset in file_list:
         try: 
             logger.info(f"Processing dataset: {dataset_file_path}")
             
@@ -97,9 +97,9 @@ def process_all_datasets(file_list, save_path, onto_file_path, error_log_directo
             
             _, reaction_error, dataset_reaction_list = dataset_processor.extract_reaction(dataset_reaction_list)
 
-            logger.info(f"Successfully completed dataset {dataset_file_path}")
+            logger.info(f"Successfully completed dataset {dataset}")
         except Exception as e: 
-            logger.error(f"Failed to process dataset {dataset_file_path} - Error: {e}", exc_info=True)
+            logger.error(f"Failed to process dataset {dataset} - Error: {e}", exc_info=True)
         finally:
             # Cleanup logic here (e.g., dataset_processor.cleanup_logger())
             pass 
