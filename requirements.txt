@@ -8,5 +8,3 @@ rdkit>=2022.9.5
 
 Sphinx==8.2.3
 sphinx-rtd-theme
-sphinx-autodoc
-# Any other Sphinx extensions like sphinx-autodoc, etc.
