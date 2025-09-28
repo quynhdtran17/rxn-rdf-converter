@@ -1,0 +1,8 @@
+# Inherit core production dependencies
+-r requirements.txt
+
+# Tools for development and testing
+pytest>=7.1.0
+black>=22.8.0
+flake8>=5.0.0
+mypy>=0.971
