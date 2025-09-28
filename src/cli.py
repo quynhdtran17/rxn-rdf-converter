@@ -84,7 +84,7 @@ def process_all_datasets(file_list, save_path, onto_file_path, error_log_directo
     
     for dataset in file_list:
         try: 
-            logger.info(f"Processing dataset: {dataset_file_path}")
+            logger.info(f"Processing dataset: {dataset}")
             
             dataset_processor = rxn_rdf_converter.DatasetProcessor(
                     dataset_pb=dataset_pb2,
