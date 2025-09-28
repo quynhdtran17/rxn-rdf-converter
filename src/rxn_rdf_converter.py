@@ -248,7 +248,7 @@ class ReactionKG:
             reaction_input_dict['addition_device'] = True if self.reaction_pb.inputs[input].addition_device else None
             reaction_input_dict['addition_temperature'] = True if self.reaction_pb.inputs[input].addition_temperature else None
             reaction_input_dict['flow_rate'] = True if self.reaction_pb.inputs[input].flow_rate else None
-            reaction_input_dict['texture'] = True if getattr(self.reaction_pb.inputs[input], 'texture') else None
+            reaction_input_dict['texture'] = True if self.reaction_pb.inputs[input].texture else None
             
             for ind, component in enumerate(self.reaction_pb.inputs[input].components): 
                 identifier_list, inchi_key = self.generate_compound_identifiers(component.identifiers)
