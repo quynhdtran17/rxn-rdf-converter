@@ -17,6 +17,21 @@ authors = [
   { name = "Roger H. French", email = "rxf131@case.edu" }
 ]
 dynamic = ["version"]
+keywords = [
+  "chemistry", "ord", "open-reaction-database",
+  "machine-learning", "cheminformatics", "reaction-data",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "ord_schema",
+  "protobuf",
+  "rdflib",
+  "owlready2",
+  "rdkit",
+]
 
 [tool.setuptools.packages.find]
 where=["src"]
@@ -29,32 +44,6 @@ Homepage = "https://github.com/quynhdtran17/rxn-rdf-converter"
 Repository = "https://github.com/quynhdtran17/rxn-rdf-converter"
 "Bug Tracker" = "https://github.com/quynhdtran17/rxn-rdf-converter/issues"
 Changelog = "https://github.com/quynhdtran17/rxn-rdf-converter/blob/main/CHANGELOG.md"
-
- keywords = [
-  "chemistry", "ord", "open-reaction-database",
-  "machine-learning", "cheminformatics", "reaction-data",
-    ]
-
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "Operating System :: OS Independent",
-]
-
-dependencies = [
-  "ord_schema",
-  "protobuf",
-  "rdflib",
-  "owlready2",
-  "logging",
-  "csv",
-  "re",
-  "rdkit"
-]
-
-# Convenience option to install everything
-all = [
-  "rxn_rdf_converter[docs,dev]"
-]
 
 [project.optional-dependencies]
 docs = [
@@ -71,5 +60,12 @@ dev = [
   "mypy",
 ]
 
+# Convenience option to install everything
+all = [
+  "rxn_rdf_converter[docs]",
+  "rxn_rdf_converter[dev]"
+]
+
 [project.scripts]
+# executable_name = "package_name.module_name:function_name"
 rxn_rdf_converter = "rxn_rdf_converter.cli:main"

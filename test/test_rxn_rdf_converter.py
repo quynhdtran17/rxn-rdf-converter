@@ -69,8 +69,8 @@ def generate_random_reaction_set(num_test_reactions):
     num_total_reactions = len(dataset.reactions)
 
     # Prints the total number of reactions in the file list
-    print("There are " + str(num_total_reactions) + " reactions in the dataset")
-    
+    print(f"There are {str(num_total_reactions)} reactions in the file list")
+
     # Creates a random list of numbers that correspond to reactions in the file
     # list's datasets
     random_reaction_nums = random.sample(range(1, num_total_reactions + 1), num_test_reactions)
