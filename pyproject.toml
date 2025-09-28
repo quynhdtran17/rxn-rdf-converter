@@ -16,7 +16,7 @@ authors = [
   { name = "Laura S. Bruckman", email = "lsh41@case.edu" },
   { name = "Roger H. French", email = "rxf131@case.edu" }
 ]
-dynamic = ["version"]
+# dynamic = ["version"]
 keywords = [
   "chemistry", "ord", "open-reaction-database",
   "machine-learning", "cheminformatics", "reaction-data",
