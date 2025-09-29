@@ -1,15 +1,10 @@
 The Reaction RDF Converter API Reference
-=============
+========================================
 
 This section contains detailed documentation for all functions, classes, and modules in rxn_rdf_converter.
 
 Reaction RDF Converter Module
-----------------------
-
-.. automodule:: rxn_rdf_converter
-    :members:
-    :undoc-members:
-    :show-inheritance:
+-----------------------------
 
 The DatasetProcess class
 ------------------------
