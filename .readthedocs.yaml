@@ -34,3 +34,6 @@ sphinx:
 python:
   install:
     - requirements: docs/requirements.txt
+    - path: ./src
+      method: pip
+  
