@@ -146,7 +146,7 @@ class ReactionKG:
     information in Protocol Buffer format, and several other null variables and
     empty lists that will hold the Protocol Buffer file's data.
 
-    Calling the functions generate_reaction(self),
+    Calling the methods generate_reaction(self),
     generate_instances(self, onto_file_path), and
     generate_data_graph(self, dataset_id, save_file_path) on the instance, in
     that order, will produce the RDF graph file of the Protocol Buffer file
@@ -154,18 +154,17 @@ class ReactionKG:
     (the parameter in the function generate_data_graph)
 
     Attributes:
-        reaction_pb (:class:?): The protocol buffer object
-            representing the reaction.
+        reaction_pb (ord_schema.proto.reaction_pb2.Reaction): The protocol buffer object representing the reaction.
         fmt (str): Optional string that represents the format of the RDF graph,
             either "json-ld" or "turtle"; defaults to "turtle".
-        reaction_id (str): Unique identifier for the reaction. Generated
-            internally if not provided.
-        reaction_identifiers (list): List of reaction identifiers extracted from
-            the reaction.
-        reaction_inputs (list): List of input components extracted from the
-            reaction.
-        reaction_conditions (list): List of reaction conditions, such as
-            temperature, pressure, stirring rate.
+        reaction_id (str): Unique identifier for the reaction generated from the ord_schema.
+        reaction_identifiers (list): List of reaction identifiers extracted from the reaction.
+        reaction_inputs (list): List of input components and input addition information extracted from the reaction.
+        reaction_conditions (list): List of reaction conditions, such as temperature, pressure, stirring rate.
+        reaction_setup (list): List of reaction setup information such as environment and vessel.
+        reaction_notes (list): List of reaction notes (primarily safe information) extracted from the reaction.
+        reaction_workups (list): List of reaction workups information: workup step (extraction, distillation, etc.) and any related information.
+        reaction_provenance (list): List of provenance details of the reaction such as when the reaction record is created and person created and/or modified the record.
         graph (rdflib.Graph): Optional RDF graph generated from this reaction.
     """
 
@@ -201,14 +200,14 @@ class ReactionKG:
     
     def generate_reaction (self): 
         """
-        Main method that takes a reaction as an attribute of an instance object and generate lists of: 
-        reaction identifiers dict
-        reaction inputs dict
-        reaction setup dict
-        reaction conditions dict
-        reaction outcomes dict
-        reaction notes
-        reaction provenance
+        Main method that takes an instance of ReactionKG class with a reaction as an attribute of an instance object and generate lists of: 
+            reaction identifiers dict
+            reaction inputs dict
+            reaction setup dict
+            reaction conditions dict
+            reaction outcomes dict
+            reaction notes
+            reaction provenance
 
         Returns:
             ReactionKG: The ReactionKG instance after the above lists have been populated with
@@ -342,7 +341,8 @@ class ReactionKG:
         Makes dictionaries containing the identifier information for this reaction and adds them to the list identifier_list
 
         Args:
-            identifiers(?):?
+            identifiers(ord_schema.proto.reaction_pb2.Identifiers): the ORD Identifiers Protocol Buffer message 
+            to be processed into a list of dictionaries.
 
         Returns:
             tuple[list of dictionaries, str]: A tuple containing:
@@ -389,14 +389,14 @@ class ReactionKG:
     def generate_instances (self, onto_file_path): 
         """Main method orchestrates all other methods - coordinates all instance generation
 
-        Args:
-            onto_file_path (str): ?
+        Args
+            onto_file_path (str): A file path to the MDS-Onto (a domain ontology for Materials Data Science) owl file. 
         
-        Returns:
-            ReactionKG: the ReactionKG instance after the instance generation has been completed
-            for the instance's protocol buffer file and the list of dictionaries generated from it
+        Returns
+            An instance of the ReactionKG class with the attributes containing data instances based on the MDS-Onto as the semantic model.
+            This is generated from the data stored in the data structures generated in the ``extract_reaction`` method.
 
-        Notes:
+        Notes
             Exceptions during processing are not raised. Instead, they are logged
             using the module logger and skipped.
         """
@@ -462,39 +462,30 @@ class ReactionKG:
             2. the instance dictionary with all property labels and 
             3. create core reaction instances
         
-        Args:
-            onto_file_path (str): ?
-            
-        Returns: 
-            Object attributes: 
-                1. mds, cco, and obo namespaces
-                2. instance_dict
-                3. chemical_reaction, reaction_mixture, reaction_environment, crude_product
+        Args
+            onto_file_path (str): A file path to the MDS-Onto (a domain ontology for Materials Data Science) owl (rdf/xml) file. 
         
-        Generates a dictionary where the keys are human-readable labels of object/datatype properties, and the values are
-        2-tuples that contain the URI of that property in the first entry and the type (object/datatype) in second entry.
-
-        Parameters
-        ----------
-        mds_ontology_file_path : str
-            Path to the RDF/OWL ontology file.
-
+            
         Returns
-        -------
-        dict
-            Dictionary of the form:
-            {
-                "has material": ("http://example.org/ontology#hasMaterial", "Object Property"),
-                "has value": ("http://example.org/ontology#hasValue", "Datatype Property"),
-                ...
-            }
+            object attributes: 
+                1. mds, cco, and obo namespaces
+                2. instance_dict: contains the relations (i.e. predicates) as the keys and 
+                    the instances of classes in MDS-Onto (i.e. subjects and objects) as values of the dictionaries.
+                3. chemical_reaction, reaction_mixture, reaction_environment, crude_product instances
+                4. a unit_mapping attribute to store QUDT units and the enumerate units from ORD schema.
+            dict
+                Dictionary of the form:
+                {
+                    "has material": ("http://example.org/ontology#hasMaterial", "Object Property"),
+                    "has value": ("http://example.org/ontology#hasValue", "Datatype Property"),
+                    ...
+                }
 
-        Generate OWL 2 Onto attribute to store classes, properties, and instances
-        Args: 
-            file path to the ontology file in .owl (rdf/xml) format
+            Generate OWL 2 Onto attribute to store classes, properties, and instances
 
-        Returns: 
-            onto attribute with classes, properties, and instances that can be called by other methods
+            Generates a dictionary where the keys are human-readable labels of object/datatype properties, and the values are
+            2-tuples that contain the URI of that property in the first entry and the type (object/datatype) in second entry.
+            Onto attribute with classes, properties, and instances that can be called by other methods
         """
 
         self.onto = get_ontology(onto_file_path).load()
@@ -662,6 +653,8 @@ class ReactionKG:
             context (str, optional): ?, defaults to 'input'
 
         Raises:
+            A value error will be raised in the context argument if it is not 'input', 'workup', or 'product'. 
+            The context enables the method to know how to process the component data.
 
         Returns:
             tuple[ReactionKG, dict]: A tuple containing:
@@ -770,13 +763,15 @@ class ReactionKG:
     def _extract_component_amount (self, component_list, reaction_component, i=None, context='input'): 
         """Process compound amounts in reaction inputs and reaction workups
 
-        :param component_list:
-        :type component_list:
-        :param reaction_component:
-        :param i:
-        :type i:
-        :param context:
-        :type context:
+        Args: 
+            component_list (list): a list of dictionaries containing the data stored as an attribute list in the ReactionKG instance.
+            reaction_component (owlready2.Thing): an instance of a component in a reaction for which the amount is being processed.
+            i (integer): an integer representing the index of the component for which the amount is being processed.
+            context (str): the context (input, workup, aliquot) for which the amount of a component is being processed.
+
+        Raises: 
+            A value error will be raised in the context argument if it is not 'input', 'workup', or 'aliquot'. 
+            The context enables the method to know how to process the component data.
         """
 
         if context == 'input': 
@@ -809,16 +804,13 @@ class ReactionKG:
             Exceptions during processing are not raised. Instead, they are logged
             using the module logger and skipped.
 
-        :param component_list:
-        :type component_list:
-        :param i:
-        :type i:
-        :param context:
-        :type context:
-        :param prefix:
-        :type prefix:
-        :param reaction_component:
-        :type reaction_component:
+        Args:
+            component_list (list): a list of dictionaries containing the data stored as an attribute list in the ReactionKG instance.
+            reaction_component (owlready2.Thing): an instance of a component in a reaction for which the amount is being processed.
+            i (integer): an integer representing the index of the component for which the amount is being processed.
+            context (str): the context (input, workup, aliquot) for which the amount of a component is being processed.
+            prefix (str): the prefix generated in the _extract_components method to determine which message the component and the identifier(s) belong to.
+
         """
         
         pattern = rf'^{re.escape(prefix)}\[{i}\]\.identifiers\[(\d+)\]\.(.+)$'
@@ -876,6 +868,7 @@ class ReactionKG:
 
     def _process_reaction_inputs(self):
         """Process reaction input details such as addition speed, addition duration, addition time, addition speed, addition temperature
+        from the attribute data structures (lists of dictionaries) into the instance_dict for generating RDF graphs.
         """
         
         for item in self.reaction_inputs:
@@ -927,13 +920,11 @@ class ReactionKG:
     
     def _process_temperature(self, component_list, reaction_component=None, context='condition'):
         """Process and extract temperature information about a reaction input, the reaction environment, or a reaction workup
-
-        :param component_list:
-        :type component_list:
-        :param reaction_component:
-        :type reaction_component:
-        :param context:
-        :type context:
+        Args:
+            component_list (list): a list of dictionaries containing the data stored as an attribute list in the ReactionKG instance.
+            reaction_component (owlready2.Thing): an instance of a component in a reaction for which the amount is being processed.
+            context (str): the context (condition, workup) for which the temperature data is being processed.
+            
         """
 
         if context == 'condition' or context == 'workup': 
@@ -1001,6 +992,7 @@ class ReactionKG:
                 
     def _process_reaction_conditions(self):
         """Process reaction conditions such as reaction temperature, reaction pressure, and other processes such as stirring, illumination, electrochemistry, and flow
+            from list of dicitonaries into instance_dict for generating RDF graphs.
         """
         atmosphere_mapping = {      
             'UNSPECIFIED': None,
@@ -1204,14 +1196,14 @@ class ReactionKG:
 
     def _extract_product_measurement(self, outcome_list, product_dict):
         """Process measurements of the products of the chemical reaction 
-        
-        :param outcome_list:
-        :type outcome_list:
-        :param product_dict: Dictionary of this reaction's product data before its product measurement data has been extracted
-        :type product_dict: dict
-        :return: The ReactionKG instance after its product measurements have been extracted, dictionary of this reaction's product data after its
-        product measurement data has been extracted
-        :rtype: tuple[ReactionKG, dict]
+        Args: 
+            outcome_list (list): a list of outcome information such as product, percentage conversion, analyses
+            product_dict (dict): Dictionary of this reaction's product data for which the product measurements to be processed.
+
+        Returns: 
+            self: The ReactionKG instance after its product measurements have been extracted into instance_dict
+            measurement_dict (dict): dictionary of this reaction's product measurement data to be processed with product and analysis data.
+
         """
 
         pattern = rf'^products\[(\d+)\]'
@@ -1342,7 +1334,7 @@ class ReactionKG:
                                 self.instance_dict['has text value'].append([analysis_type.iri, item[f'analyses["{analysis}"].data["{data}"].format']])
     
     def _process_reaction_setup(self):
-        """?
+        """Process the reaction setup from a reaction into instance_dict for generating RDF graphs.
         """
         for item in self.reaction_setup: 
             reaction_setup = self.mds.ReactionSetup(f'ReactionSetup#{self.reaction_id}')
@@ -1352,7 +1344,7 @@ class ReactionKG:
         """Generates the data graph for this reaction in turtle or JSON-LD format and saves it to a file path
 
         Args:
-            dataset_id (?): The ID of the dataset that this reaction belongs to
+            dataset_id (str): The ID of the dataset that this reaction belongs to
             save_file_path (str): he path to the folder that this reaction's data graph will be saved to
 
         Raises:
