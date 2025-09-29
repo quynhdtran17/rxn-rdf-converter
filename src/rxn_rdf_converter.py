@@ -44,7 +44,7 @@ class DatasetProcessor:
     A class to process an Open Reaction Database (ORD) dataset
 
     Attributes: 
-        dataset (dataset_pb.Dataset): The loaded ORD dataset protocol buffer object. 
+        dataset (:class:`dataset_pb.Dataset`): The loaded ORD dataset protocol buffer object. 
         dataset_id (str): The unique ID of the dataset, extracted from the full dataset ID.
         output_dir (str): The directory path where the processed reaction data will be saved.
         owl_onto (str): The file path to the MDS-Onto OWL ontology file 
@@ -163,7 +163,7 @@ class ReactionKG:
     information in Protocol Buffer format, and several other null variables and
     empty lists that will hold the processed data.
 
-    Calling the methods :meth:`generate_reaction`, :meth:`generate_instances`, and :meth: `generate_data_graph` on the instance, 
+    Calling the methods :meth:`generate_reaction`, :meth:`generate_instances`, and :meth:`generate_data_graph` on the instance, 
     **in that order**, will produce the RDF graph file of the reaction stored in the Protocol Buffer file. 
     It will be saved to the path (save_file_path) specified in :meth:`generate_data_graph`.
 
@@ -179,10 +179,10 @@ class ReactionKG:
         reaction_notes (list[dict]): List of reaction notes (primarily safe information) extracted from the reaction.
         reaction_workups (list[dict]): List of reaction workups information: workup step (extraction, distillation, etc.) and any related information.
         reaction_provenance (list[dict]): List of provenance details of the reaction such as when the reaction record is created and person created and/or modified the record.
-        chemical_reaction (None | object): Placeholder for the generated chemical reaction instance of the MDS.ChemicalReaction class using owlready2.
-        reaction_mixture (None | object): Placeholder for the generated reaction mixture instance of the MDS.ReactionMixture class using owlready2.
-        reaction_environment (None | object): Placeholder for the generated reaction environment instance of the MDS.ReactionEnvironment class using owlready2
-        crude_product (None | object): Placeholder for the generated crude product instance of the MDS.CrudeProduct class using owlready2
+        chemical_reaction (None | object): Placeholder for the generated chemical reaction instance of the :class:`MDS.ChemicalReaction` using owlready2.
+        reaction_mixture (None | object): Placeholder for the generated reaction mixture instance of the :class:`MDS.ReactionMixture` class using owlready2.
+        reaction_environment (None | object): Placeholder for the generated reaction environment instance of the :class:`MDS.ReactionEnvironment` class using owlready2
+        crude_product (None | object): Placeholder for the generated crude product instance of the :class:`MDS.CrudeProduct` class using owlready2
         graph (:class:`rdflib.Graph` | None): The RDF graph generated from this reaction.
     """
 
@@ -192,9 +192,8 @@ class ReactionKG:
         Sets the core reaction protocol buffer object and initializes all internal data lists and instance placeholders.
 
         Args:
-            reaction_pb(:class: `ord_schema.proto.reaction_pb2.Reaction`): The protocol buffer object representing the reaction.
-            fmt(str, optional): The format of the file containing the RDF graph data. 
-                Defaults to "turtle".
+            reaction_pb(:class:`ord_schema.proto.reaction_pb2.Reaction`): The protocol buffer object representing the reaction.
+            fmt(str, optional): The format of the file containing the RDF graph data. Defaults to "turtle".
         """
         self.reaction_pb = reaction_pb
         self.fmt = fmt
@@ -234,8 +233,7 @@ class ReactionKG:
 
 
         Returns:
-            :class:`ReactionKG`: The ReactionKG instance after the above lists have been populated with
-            data from the instance's Protocol Buffer file
+            :class:`ReactionKG`: The ReactionKG instance after the above lists have been populated with data from the instance's Protocol Buffer file
         """
 
         # reaction identifiers 
@@ -368,8 +366,7 @@ class ReactionKG:
 
 
         Args:
-            identifiers(:class:`ord_schema.proto.reaction_pb2.Identifiers`): The ORD Identifiers Protocol Buffer message 
-            to be processed into a list of dictionaries.
+            identifiers(:class:`ord_schema.proto.reaction_pb2.Identifiers`): The ORD Identifiers Protocol Buffer message to be processed into a list of dictionaries.
 
         Returns:
             tuple[list[dict], str | None]: A tuple containing:
@@ -421,16 +418,15 @@ class ReactionKG:
         The method calls private helper methods in a specific order: 
         :meth:`_initialize_instance_dict`, :meth:`_process_reaction_identifiers`, :meth:`_process_reaction_inputs`, :meth:`_process_reaction_conditions`, 
         :meth:`_process_reaction_notes`, :meth:`_process_reaction_workups`, :meth:`_process_reaction_outcomes`, and :meth:`_process_reaction_setup`
+        
         Args
             onto_file_path (str): A file path to the MDS-Onto (a domain ontology for Materials Data Science) owl file. 
         
         Returns
-            :class`ReactionKG`: The instance of :class:`ReactionKG`  with the attributes (:attr:`mds`, :attr:`cco`, :attr:`instance_dict`, etc.) 
-            populated with data instances based on the  MDS-Onto semantic model.
+            - self (:class:`ReactionKG`): The instance after processing with the attributes (:attr:`mds`, :attr:`cco`, :attr:`instance_dict`, etc.) populated with data instances based on the  MDS-Onto semantic model.
 
         Notes
-            Exceptions during processing are not raised. Instead, they are logged
-            using the module logger and skipped.
+            Exceptions during processing are not raised. Instead, they are logged using the module logger and skipped.
         """
         try: 
             self._initialize_instance_dict(onto_file_path)
@@ -491,15 +487,12 @@ class ReactionKG:
     def _initialize_instance_dict(self, onto_file_path): 
         """Initialization of the ontology environment, property metadata, and core reaction instances. 
 
-        Loads the OWL 2 ontology, establishes necesary namespaces (MDS, CCO, OBO, QUDT), creates a mapping for ORD enumeration units to 
-            QUDT units, and extracts all object/datatype properties into :attr:`prop_metadata_dict`. 
-        Finally it creates the core instances (:attr:`chemical_reaction`, :attr:`reaction_mixture, :attr:`reaction_environment`, :attr:`crude_product`)
-            and populates the inital structure of :attr:`instance_dict`.
+        Loads the OWL 2 ontology, establishes necesary namespaces (MDS, CCO, OBO, QUDT), creates a mapping for ORD enumeration units to QUDT units, and extracts all object/datatype properties into :attr:`prop_metadata_dict`. 
+        Finally it creates the core instances (:attr:`chemical_reaction`, :attr:`reaction_mixture, :attr:`reaction_environment`, :attr:`crude_product`) and populates the inital structure of :attr:`instance_dict`.
         
         Args
             onto_file_path (str): A file path to the MDS-Onto (a domain ontology for Materials Data Science) owl (rdf/xml) file. 
         
-            
         Returns:
             None: This method updates the following instance attributes: 
                 - :attr:`onto` (object): The loaded OWL ontology object.
@@ -616,7 +609,7 @@ class ReactionKG:
             pattern (str): Regex pattern to match keys and extract indices 
 
         Returns: 
-            list: sorted list of integers for numeric indices or list of unique strings for text indices. 
+            result (list): sorted list of integers for numeric indices or list of unique strings for text indices. 
             Returns an empty list if no matches are found. 
         """
         
@@ -688,12 +681,9 @@ class ReactionKG:
         It also handles the relationships to the parent process node (e.g., :attr:`reaction_mixture`, `InputAddition`, `ReactionWorkup`, or :attr:`chemical_reaction`).
 
         Args: 
-            component_list (dict): The dictionary containing flat data for the component(s) being processed 
-                (e.g., an item from :attr:`reaction_inputs` or :attr:`reaction_outcomes`).
-            process_node (:class:`owlready2.Thing`, optional): The process node for this set of components 
-                (either an `InputAddition` or `ReactionWorkup` instance). Defaults to ``None``.
-            context (str, optional): The context of the components. Must be 'input', 'workup', or 'product'. 
-                Defaults to 'input'.
+            component_list (dict): The dictionary containing flat data for the component(s) being processed (e.g., an item from :attr:`reaction_inputs` or :attr:`reaction_outcomes`).
+            process_node (:class:`owlready2.Thing`, optional): The process node for this set of components (either an `InputAddition` or `ReactionWorkup` instance). Defaults to ``None``.
+            context (str, optional): The context of the components. Must be 'input', 'workup', or 'product'. Defaults to 'input'.
 
         Raises:
             ValueError: If `context` is invalid.
@@ -702,8 +692,7 @@ class ReactionKG:
         Returns:
             tuple[:class:`ReactionKG`, dict]: A tuple containing:
                 - self (:class:`ReactionKG`): The instance after processing.
-                - product_dict (dict): A dictionary mapping product indices to their generated Product instances 
-                  (only populated if `context='product'`).
+                - product_dict (dict): A dictionary mapping product indices to their generated Product instances (only populated if `context='product'`).
 
         Notes:
             This method calls :meth:`_extract_compound_identifiers` and :meth:`_extract_component_amount`.
@@ -986,10 +975,8 @@ class ReactionKG:
 
         Args:
             component_list (dict): The dictionary containing the temperature data.
-            reaction_component (:class:`owlready2.Thing` | None): An instance of a component 
-                (required if `context='input'`). Defaults to ``None``.
-            context (str, optional): The context for the temperature data. Must be 'condition', 
-                'input', or 'workup'. Defaults to 'condition'.
+            reaction_component (:class:`owlready2.Thing` | None): An instance of a component (required if `context='input'`). Defaults to ``None``.
+            context (str, optional): The context for the temperature data. Must be 'condition', 'input', or 'workup'. Defaults to 'condition'.
             
         Raises: 
             ValueError: If the `context` argument is invalid.
@@ -1289,16 +1276,13 @@ class ReactionKG:
         extracts the measurement values (percentage, float, string) and unit information.
 
         Args: 
-            outcome_list (dict): The dictionary containing the outcome data (e.g., an item 
-                from :attr:`reaction_outcomes`).
-            product_dict (dict): Dictionary mapping product indices to their generated Product 
-                instances (created by :meth:`_extract_components`).
+            outcome_list (dict): The dictionary containing the outcome data (e.g., an item from :attr:`reaction_outcomes`).
+            product_dict (dict): Dictionary mapping product indices to their generated Product instances (created by :meth:`_extract_components`).
 
         Returns: 
             tuple[:class:`ReactionKG`, dict]: A tuple containing:
                 - self (:class:`ReactionKG`): The instance after processing.
-                - measurement_dict (dict): A dictionary mapping `analysis_key` strings to their 
-                  generated `AnalyticalResult` instances.
+                - measurement_dict (dict): A dictionary mapping `analysis_key` strings to their generated `AnalyticalResult` instances.
         """
 
         pattern = rf'^products\[(\d+)\]'
@@ -1451,10 +1435,8 @@ class ReactionKG:
     def generate_data_graph(self, dataset_id, save_file_path): 
         """Generates the final RDF data graph and serializes it to a file.
 
-        The method initializes an :class:`rdflib.Graph`, binds necessary namespaces, 
-        iterates through the populated :attr:`instance_dict` using the metadata from 
-        :attr:`prop_metadata_dict` to create the final RDF triples, and saves the 
-        graph to the specified file path in either "turtle" or "json-ld" format.
+        The method initializes an :class:`rdflib.Graph`, binds necessary namespaces, iterates through the populated :attr:`instance_dict` using the metadata from 
+        :attr:`prop_metadata_dict` to create the final RDF triples, and saves the graph to the specified file path in either "turtle" or "json-ld" format.
 
         Args:
             dataset_id (str): The ID of the dataset that this reaction belongs to.
@@ -1467,8 +1449,7 @@ class ReactionKG:
             :class:`ReactionKG`: The ReactionKG instance after its data graph has been generated. Returns ``None`` if saving fails.
 
         Notes:
-            Exceptions during the graph serialization process (other than unsupported format) 
-            are logged using the module logger and the method returns ``None``.
+            Exceptions during the graph serialization process (other than unsupported format) are logged using the module logger and the method returns ``None``.
         """
         
         # Initialize graph, binding to the corresponding namespaces
