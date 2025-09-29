@@ -26,7 +26,6 @@ extensions = [
     'sphinx.ext.autosummary',      # Generate summary tables
     'sphinx.ext.intersphinx',      # Cross-reference external docs
     'sphinx.ext.githubpages',      # GitHub Pages compatibility
-    'sphinx_rtd_theme',
 ]
 
 # Autodoc configuration

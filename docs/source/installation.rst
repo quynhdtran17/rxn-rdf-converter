@@ -4,7 +4,7 @@ Installation
 Requirements
 ------------
 
-* Python >= 3.7
+* Python >= 3.11
 * protobuf>=3.20
 * rdkit>=2022.9.5
 * ord_schema>=0.3.99
