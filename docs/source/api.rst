@@ -7,7 +7,7 @@ Reaction RDF Converter Module
 -----------------------------
 
 The DatasetProcess class
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: rxn_rdf_converter.DatasetProcessor
     :special-members: __init__
@@ -16,7 +16,7 @@ The DatasetProcess class
     :show-inheritance:
     
 The ReactionKG class
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: rxn_rdf_converter.ReactionKG
     :members: generate_reaction, generate_instances, generate_data_graph
