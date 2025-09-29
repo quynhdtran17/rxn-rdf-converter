@@ -7,7 +7,7 @@ name = "rxn_rdf_converter"
 version = "0.1.1"
 description = "Package for extracting chemical reaction serialized (Google Protocol Buffers mechanism) in Open Reaction Database (ORD) schema to Resource Descriptive Framework (RDF) triples in JSON-LD and/or Turtle format."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
   { name = "Quynh D. Tran", email = "qdt@case.edu" },
