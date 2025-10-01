@@ -772,7 +772,7 @@ class ReactionKG:
                     role_id_base = f'{self.reaction_id}_Outcome_{component_list["Index"]}_Product_{i}'
                 
                 if role_class: 
-                    component_role = role_class(f"{role_type}ArtifactFunction#{role_id_base}")
+                    component_role = role_class(f"{role_type}#{role_id_base}")
                     self.instance_dict['type'].append([component_role.iri, component_role.is_instance_of[0].iri])
                     self.instance_dict['inheres in'].append([component_role.iri, reaction_component.iri])
 
